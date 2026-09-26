@@ -1,0 +1,111 @@
+import React, { useState } from 'react';
+import { Settings, RefreshCw, ZoomIn, Eye, Sparkles, Wand2 } from 'lucide-react';
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState<'number' | 'color'>('number');
+  const [selectedNum, setSelectedNum] = useState<number>(1);
+
+  return (
+    <div className="flex flex-col h-screen w-full bg-[#1b1e10] text-[#e2e8ce] font-mono select-none overflow-hidden">
+      {/* Top Header */}
+      <header className="flex items-center justify-between px-3 py-2 bg-[#252914] border-b-2 border-[#383d21]">
+        <div className="flex items-center gap-2">
+          <span className="text-xl font-bold tracking-wider text-[#a8b878] uppercase">
+            PIXEL PAINT MILITARY
+          </span>
+          <span className="text-xs px-2 py-0.5 bg-[#383d21] text-[#c2d495] rounded">
+            TÔ THEO SỐ
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button className="p-2 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors">
+            <RefreshCw size={18} />
+          </button>
+          <button className="p-2 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors">
+            <Settings size={18} />
+          </button>
+        </div>
+      </header>
+
+      {/* Main Canvas Area */}
+      <main className="relative flex-1 bg-[#12140b] flex items-center justify-center p-4 overflow-hidden">
+        <div className="relative border-4 border-[#383d21] bg-[#1a1d10] shadow-2xl rounded-sm overflow-hidden max-w-full max-h-full flex items-center justify-center">
+          <img
+            src="https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80"
+            alt="Military Pixel Canvas"
+            className="object-contain max-h-[60vh] w-auto pixelated"
+          />
+        </div>
+
+        {/* Floating Right Action Controls */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-3 bg-[#252914]/90 p-2 rounded-lg border border-[#383d21] shadow-lg">
+          <button className="p-2.5 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors flex items-center justify-center">
+            <ZoomIn size={20} />
+          </button>
+          <button className="p-2.5 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors flex items-center justify-center">
+            <Eye size={20} />
+          </button>
+          <button className="p-2.5 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors flex items-center justify-center text-[#eab308]">
+            <Sparkles size={20} />
+          </button>
+          <button className="p-2.5 rounded bg-[#383d21] hover:bg-[#4a512c] text-[#e2e8ce] transition-colors flex items-center justify-center text-[#3b82f6]">
+            <Wand2 size={20} />
+          </button>
+        </div>
+      </main>
+
+      {/* Bottom Palette Panel */}
+      <footer className="bg-[#252914] border-t-2 border-[#383d21] p-3 flex flex-col gap-3">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('number')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+              activeTab === 'number'
+                ? 'bg-[#4a512c] text-[#ffffff] border border-[#6b753f]'
+                : 'bg-[#1b1e10] text-[#8a946b] hover:bg-[#2e331a]'
+            }`}
+          >
+            Chế độ số
+          </button>
+          <button
+            onClick={() => setActiveTab('color')}
+            className={`flex-1 py-1.5 text-xs font-bold rounded uppercase tracking-wider transition-colors ${
+              activeTab === 'color'
+                ? 'bg-[#4a512c] text-[#ffffff] border border-[#6b753f]'
+                : 'bg-[#1b1e10] text-[#8a946b] hover:bg-[#2e331a]'
+            }`}
+          >
+            Bảng màu
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
+          {[
+            { id: 1, color: '#2d3a20', label: '1' },
+            { id: 2, color: '#4a5d36', label: '2' },
+            { id: 3, color: '#7a8b5b', label: '3' },
+            { id: 4, color: '#a8b878', label: '4' },
+            { id: 5, color: '#d0dfa0', label: '5' },
+            { id: 6, color: '#8c6d46', label: '6' },
+            { id: 7, color: '#554127', label: '7' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setSelectedNum(item.id)}
+              className={`flex-1 min-w-[48px] h-14 rounded-lg flex flex-col items-center justify-center gap-1 border-2 transition-transform active:scale-95 ${
+                selectedNum === item.id
+                  ? 'border-white scale-105 shadow-md'
+                  : 'border-transparent opacity-80 hover:opacity-100'
+              }`}
+              style={{ backgroundColor: item.color }}
+            >
+              <span className="text-sm font-bold drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] text-white">
+                {item.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </footer>
+    </div>
+  );
+}
