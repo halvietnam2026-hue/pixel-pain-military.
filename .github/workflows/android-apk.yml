@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Pixel Paint Military</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#10130c;
+  font-family:Arial,sans-serif;
+  color:#fff;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.game{
+  width:min(100vw,520px);
+  height:100vh;
+  background:
+    radial-gradient(circle at 50% 20%,#394322,#171b10 70%);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+.header{
+  height:70px;
+  padding:10px 14px;
+  background:#252b18;
+  border-bottom:3px solid #0b0d08;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.title{
+  font-size:20px;
+  color:#d5e39b;
+  text-shadow:2px 2px #000;
+}
+
+.coins{
+  background:#11150c;
+  border:2px solid #697545;
+  padding:8px 12px;
+  border-radius:8px;
+  color:#ffe36a;
+}
+
+.screen{
+  flex:1;
+  overflow:auto;
+  padding:18px;
+}
+
+.menu{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  text-align:center;
+}
+
+.logo{
+  font-size:34px;
+  font-weight:900;
+  color:#d7e39c;
+  text-shadow:4px 4px #000;
+  line-height:1.1;
+}
+
+.subtitle{
+  color:#aeb78b;
+  margin-bottom:15px;
+}
+
+.btn{
+  width:min(330px,90%);
+  padding:16px;
+  border-radius:8px;
+  background:#66733d;
+  color:white;
+  border:3px solid #9ba966;
+  box-shadow:0 5px 0 #272d18;
+  font-size:18px;
+}
+
+.btn:active{
+  transform:translateY(4px);
+  box-shadow:0 1px 0 #272d18;
+}
+
+.btn.secondary{
+  background:#333a25;
+  border-color:#626c45;
+}
+
+.levels{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.level{
+  aspect-ratio:1;
+  border-radius:8px;
+  background:#343b25;
+  color:#fff;
+  border:2px solid #667347;
+  font-size:18px;
+}
+
+.level.locked{
+  opacity:.35;
+}
+
+.level.done{
+  background:#536536;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.back{
+  background:#303721;
+  color:#fff;
+  padding:9px 13px;
+  border-radius:7px;
+}
+
+.level-name{
+  color:#d8e59f;
+  font-weight:bold;
+}
+
+.canvas-wrap{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:5px;
+}
+
+#pixelCanvas{
+  width:min(92vw,460px);
+  height:min(92vw,460px);
+  image-rendering:pixelated;
+  background:#f0ead8;
+  border:5px solid #0b0d07;
+  box-shadow:0 8px 25px #000;
+  touch-action:none;
+}
+
+.palette{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  padding:14px 4px;
+}
+
+.color{
+  width:42px;
+  height:42px;
+  border-radius:6px;
+  border:3px solid #222;
+  position:relative;
+}
+
+.color.selected{
+  border-color:#fff;
+  box-shadow:0 0 0 3px #aab875;
+  transform:scale(1.08);
+}
+
+.color.done{
+  opacity:.3;
+}
+
+.color span{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+  font-weight:bold;
+  text-shadow:1px 1px #000;
+}
+
+.info{
+  text-align:center;
+  color:#b9c398;
+  padding:5px;
+}
+
+.progress{
+  height:12px;
+  background:#0c0f09;
+  border-radius:20px;
+  overflow:hidden;
+  margin:7px 0 12px;
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:#a7c45d;
+  transition:.2s;
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  padding-bottom:10px;
+}
+
+.small-btn{
+  background:#343b25;
+  color:#fff;
+  padding:10px 13px;
+  border-radius:7px;
+}
+
+.win{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.78);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:20;
+}
+
+.win-box{
+  width:min(360px,90%);
+  background:#252b18;
+  border:3px solid #8c9d59;
+  border-radius:12px;
+  padding:25px;
+  text-align:center;
+  box-shadow:0 15px 50px #000;
+}
+
+.win-title{
+  font-size:30px;
+  color:#d9e990;
+  margin-bottom:10px;
+}
+
+.stars{
+  font-size:35px;
+  margin:12px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+@media(max-height:650px){
+  .header{height:58px}
+  .screen{padding:10px}
+  .palette{padding:7px}
+  .color{width:34px;height:34px}
+  .btn{padding:12px}
+}
+</style>
+</head>
+
+<body>
+
+<div id="app">
+
+<div class="game">
+
+<header class="header">
+  <div class="title">PIXEL PAINT</div>
+  <div class="coins">🪙 <span id="coins">100</span></div>
+</header>
+
+<!-- MENU -->
+<section id="menuScreen" class="screen">
+  <div class="menu">
+
+    <div class="logo">
+      PIXEL<br>PAINT
+    </div>
+
+    <div class="subtitle">
+      MILITARY COLORING
+    </div>
+
+    <button class="btn" onclick="startGame()">
+      ▶ CHƠI
+    </button>
+
+    <button class="btn secondary" onclick="showLevels()">
+      ▦ CHỌN LEVEL
+    </button>
+
+  </div>
+</section>
+
+<!-- LEVEL SELECT -->
+<section id="levelScreen" class="screen hidden">
+
+  <div class="topbar">
+    <button class="back" onclick="showMenu()">← Quay lại</button>
+    <div class="level-name">LEVELS</div>
+  </div>
+
+  <div id="levels" class="levels"></div>
+
+</section>
+
+<!-- GAME -->
+<section id="gameScreen" class="screen hidden">
+
+  <div class="topbar">
+
+    <button class="back" onclick="showMenu()">← Menu</button>
+
+    <div class="level-name">
+      LEVEL <span id="levelNumber">1</span>
+    </div>
+
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="pixelCanvas"></canvas>
+  </div>
+
+  <div class="info">
+    Tô tất cả pixel theo đúng số
+  </div>
+
+  <div class="progress">
+    <div id="progressBar" class="progress-bar"></div>
+  </div>
+
+  <div id="progressText" class="info">
+    0 / 0
+  </div>
+
+  <div id="palette" class="palette"></div>
+
+  <div class="actions">
+    <button class="small-btn" onclick="hint()">💡 Gợi ý (-5 🪙)</button>
+    <button class="small-btn" onclick="resetLevel()">↻ Làm lại</button>
+  </div>
+
+</section>
+
+</div>
+</div>
+
+<!-- WIN -->
+<div id="win" class="win">
+
+  <div class="win-box">
+
+    <div class="win-title">
+      LEVEL HOÀN THÀNH!
+    </div>
+
+    <div class="stars">
+      ⭐⭐⭐
+    </div>
+
+    <div>
+      Bạn nhận được
+      <b style="color:#ffe36a">+20 🪙</b>
+    </div>
+
+    <br>
+
+    <button class="btn" onclick="nextLevel()">
+      LEVEL TIẾP →
+    </button>
+
+    <br><br>
+
+    <button class="btn secondary" onclick="showMenu()">
+      MENU
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+/* =========================
+   DATA
+========================= */
+
+const COLORS=[
+  "#2d321d",
+  "#657044",
+  "#89965b",
+  "#b0bd77",
+  "#d7dca6",
+  "#72583d",
+  "#a57b4d",
+  "#3b5142",
+  "#557c61",
+  "#8e9d91"
+];
+
+const LEVELS=30;
+
+let coins=
+  Number(localStorage.getItem("pixelCoins")||100);
+
+let currentLevel=
+  Number(localStorage.getItem("pixelLevel")||0);
+
+let completed=
+  JSON.parse(localStorage.getItem("pixelCompleted")||"[]");
+
+let grid=[];
+let size=16;
+let selectedColor=0;
+let painted=0;
+let total=0;
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const canvas=
+  document.getElementById("pixelCanvas");
+
+const ctx=
+  canvas.getContext("2d");
+
+const coinsEl=
+  document.getElementById("coins");
+
+const paletteEl=
+  document.getElementById("palette");
+
+const progressBar=
+  document.getElementById("progressBar");
+
+const progressText=
+  document.getElementById("progressText");
+
+/* =========================
+   SAVE
+========================= */
+
+function save(){
+
+  localStorage.setItem(
+    "pixelCoins",
+    coins
+  );
+
+  localStorage.setItem(
+    "pixelLevel",
+    currentLevel
+  );
+
+  localStorage.setItem(
+    "pixelCompleted",
+    JSON.stringify(completed)
+  );
+
+  coinsEl.textContent=coins;
+}
+
+/* =========================
+   SCREEN
+========================= */
+
+function hideAll(){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(x=>x.classList.add("hidden"));
+
+}
+
+function showMenu(){
+
+  hideAll();
+
+  document
+    .getElementById("menuScreen")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("win")
+    .style.display="none";
+}
+
+function showLevels(){
+
+  hideAll();
+
+  document
+    .getElementById("levelScreen")
+    .classList.remove("hidden");
+
+  drawLevels();
+
+}
+
+/* =========================
+   LEVELS
+========================= */
+
+function drawLevels(){
+
+  const el=
+    document.getElementById("levels");
+
+  el.innerHTML="";
+
+  for(let i=0;i<LEVELS;i++){
+
+    const b=
+      document.createElement("button");
+
+    b.className="level";
+
+    if(completed.includes(i)){
+      b.classList.add("done");
+    }
+
+    if(i>currentLevel){
+      b.classList.add("locked");
+      b.textContent="🔒";
+      b.disabled=true;
+    }else{
+
+      b.textContent=
+        completed.includes(i)
+        ?"✓ "+(i+1)
+        :i+1;
+
+      b.onclick=()=>{
+        currentLevel=i;
+        startGame();
+      };
+
+    }
+
+    el.appendChild(b);
+
+  }
+
+}
+
+/* =========================
+   GAME START
+========================= */
+
+function startGame(){
+
+  hideAll();
+
+  document
+    .getElementById("gameScreen")
+    .classList.remove("hidden");
+
+  document
+    .getElementById("levelNumber")
+    .textContent=
+      currentLevel+1;
+
+  createLevel();
+
+}
+
+/* =========================
+   LEVEL GENERATOR
+========================= */
+
+function randomSeed(seed){
+
+  let x=seed;
+
+  return function(){
+
+    x=Math.sin(x)*10000;
+
+    return x-Math.floor(x);
+
+  };
+
+}
+
+function createLevel(){
+
+  size=
+    14+
+    Math.min(
+      12,
+      Math.floor(currentLevel/5)
+    );
+
+  const rand=
+    randomSeed(
+      1234+
+      currentLevel*777
+    );
+
+  grid=[];
+
+  for(let y=0;y<size;y++){
+
+    grid[y]=[];
+
+    for(let x=0;x<size;x++){
+
+      let value=0;
+
+      /*
+       * Tạo hình quân sự/pixel art
+       */
+
+      const cx=size/2;
+      const cy=size/2;
+
+      const dx=x-cx;
+      const dy=y-cy;
+
+      const d=
+        Math.sqrt(dx*dx+dy*dy);
+
+      if(currentLevel%5===0){
+
+        // xe tăng
+
+        if(
+          Math.abs(dy)<size*.18 &&
+          Math.abs(dx)<size*.4
+        )
+          value=1;
+
+        if(
+          y>size*.45 &&
+          y<size*.72 &&
+          Math.abs(dx)<size*.42
+        )
+          value=2;
+
+        if(
+          x>cx &&
+          Math.abs(y-cy)<2
+        )
+          value=3;
+
+      }else if(currentLevel%5===1){
+
+        // máy bay
+
+        if(
+          Math.abs(y-cy)<1.5
+        )
+          value=1;
+
+        if(
+          Math.abs(y-cy)<size*.12 &&
+          Math.abs(x-cx)<size*.4
+        )
+          value=2;
+
+        if(
+          Math.abs(x-cx)<size*.1 &&
+          Math.abs(y-cy)<size*.4
+        )
+          value=3;
+
+      }else if(currentLevel%5===2){
+
+        // huy hiệu
+
+        if(
+          d<size*.38
+        )
+          value=1;
+
+        if(
+          d<size*.25
+        )
+          value=2;
+
+        if(
+          d<size*.12
+        )
+          value=3;
+
+      }else if(currentLevel%5===3){
+
+        // robot
+
+        if(
+          Math.abs(dx)<size*.27 &&
+          Math.abs(dy)<size*.3
+        )
+          value=1;
+
+        if(
+          Math.abs(dx)<size*.18 &&
+          Math.abs(dy)<size*.15
+        )
+          value=2;
+
+        if(
+          Math.abs(dx)<size*.42 &&
+          Math.abs(dy)<size*.08
+        )
+          value=3;
+
+      }else{
+
+        // ngôi sao
+
+        const a=
+          Math.atan2(dy,dx);
+
+        const r=
+          Math.cos(a*5)*size*.18+
+          size*.25;
+
+        if(d<r)
+          value=1;
+
+        if(
+          d<size*.12
+        )
+          value=2;
+
+      }
+
+      /*
+       * Điền thêm pixel để hình đẹp hơn
+       */
+
+      if(value===0 && d<size*.48){
+
+        if(rand()<.18)
+          value=
+            1+
+            Math.floor(
+              rand()*
+              Math.min(
+                COLORS.length,
+                4+
+                Math.floor(currentLevel/6)
+              )
+            );
+
+      }
+
+      grid[y][x]={
+        color:value,
+        painted:false
+      };
+
+    }
+
+  }
+
+  /*
+   * Không để level trống
+   */
+
+  let count=0;
+
+  for(const row of grid)
+    for(const cell of row)
+      if(cell.color>0)
+        count++;
+
+  if(count<10){
+
+    for(
+      let y=Math.floor(size*.25);
+      y<Math.ceil(size*.75);
+      y++
+    ){
+
+      for(
+        let x=Math.floor(size*.25);
+        x<Math.ceil(size*.75);
+        x++
+      ){
+
+        if(
+          Math.abs(x-size/2)+
+          Math.abs(y-size/2)
+          <size*.35
+        ){
+
+          grid[y][x].color=
+            1+(x+y)%4;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  /*
+   * Restore progress
+   */
+
+  loadProgress();
+
+  selectedColor=0;
+
+  drawPalette();
+
+  resizeCanvas();
+
+  draw();
+
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+function loadProgress(){
+
+  const key=
+    "levelPaint_"+currentLevel;
+
+  const data=
+    JSON.parse(
+      localStorage.getItem(key)||"null"
+    );
+
+  painted=0;
+  total=0;
+
+  for(let y=0;y<size;y++){
+
+    for(let x=0;x<size;x++){
+
+      const cell=grid[y][x];
+
+      if(cell.color>0){
+
+        total++;
+
+        if(
+          data &&
+          data[y] &&
+          data[y][x]
+        ){
+
+          cell.painted=true;
+          painted++;
+
+        }
+
+      }
+
+    }
+
+  }
+
+  updateProgress();
+
+}
+
+function saveProgress(){
+
+  const data=
+    grid.map(row=>
+      row.map(c=>
+        c.painted
+      )
+    );
+
+  localStorage.setItem(
+    "levelPaint_"+currentLevel,
+    JSON.stringify(data)
+  );
+
+}
+
+function updateProgress(){
+
+  const percent=
+    total?
+    painted/total*100:
+    0;
+
+  progressBar.style.width=
+    percent+"%";
+
+  progressText.textContent=
+    painted+" / "+total;
+
+}
+
+/* =========================
+   CANVAS
+========================= */
+
+function resizeCanvas(){
+
+  const rect=
+    canvas.getBoundingClientRect();
+
+  const dpr=
+    window.devicePixelRatio||1;
+
+  canvas.width=
+    rect.width*dpr;
+
+  canvas.height=
+    rect.height*dpr;
+
+  ctx.setTransform(
+    dpr,0,0,dpr,0,0
+  );
+
+  draw();
+
+}
+
+window.addEventListener(
+  "resize",
+  resizeCanvas
+);
+
+/* =========================
+   DRAW
+========================= */
+
+function draw(){
+
+  const w=
+    canvas.clientWidth;
+
+  const h=
+    canvas.clientHeight;
+
+  if(!w||!h)return;
+
+  ctx.clearRect(0,0,w,h);
+
+  const cell=
+    Math.min(w,h)/size;
+
+  const ox=
+    (w-cell*size)/2;
+
+  const oy=
+    (h-cell*size)/2;
+
+  /*
+   * background
+   */
+
+  ctx.fillStyle="#eee7d2";
+
+  ctx.fillRect(
+    0,0,w,h
+  );
+
+  /*
+   * pixels
+   */
+
+  for(let y=0;y<size;y++){
+
+    for(let x=0;x<size;x++){
+
+      const c=
+        grid[y][x];
+
+      if(c.color===0)
+        continue;
+
+      const px=
+        ox+x*cell;
+
+      const py=
+        oy+y*cell;
+
+      /*
+       * Chưa tô:
+       */
+
+      if(!c.painted){
+
+        ctx.fillStyle=
+          "#e6dfc9";
+
+      }else{
+
+        ctx.fillStyle=
+          COLORS[
+            Math.min(
+              COLORS.length-1,
+              c.color
+            )
+          ];
+
+      }
+
+      ctx.fillRect(
+        px,
+        py,
+        cell,
+        cell
+      );
+
+      /*
+       * grid
+       */
+
+      ctx.strokeStyle=
+        "rgba(40,40,30,.35)";
+
+      ctx.lineWidth=1;
+
+      ctx.strokeRect(
+        px,
+        py,
+        cell,
+        cell
+      );
+
+      /*
+       * number
+       */
+
+      if(!c.painted){
+
+        ctx.fillStyle=
+          "#35382b";
+
+        ctx.font=
+          `bold ${Math.max(9,cell*.42)}px Arial`;
+
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+
+        ctx.fillText(
+          c.color,
+          px+cell/2,
+          py+cell/2
+        );
+
+      }
+
+    }
+
+  }
+
+}
+
+/* =========================
+   CLICK / TOUCH
+========================= */
+
+function paintAt(clientX,clientY){
+
+  const rect=
+    canvas.getBoundingClientRect();
+
+  const w=
+    rect.width;
+
+  const h=
+    rect.height;
+
+  const cell=
+    Math.min(w,h)/size;
+
+  const ox=
+    (w-cell*size)/2;
+
+  const oy=
+    (h-cell*size)/2;
+
+  const x=
+    Math.floor(
+      (clientX-rect.left-ox)/cell
+    );
+
+  const y=
+    Math.floor(
+      (clientY-rect.top-oy)/cell
+    );
+
+  if(
+    x<0||
+    y<0||
+    x>=size||
+    y>=size
+  )
+    return;
+
+  const c=
+    grid[y][x];
+
+  if(!c || c.color===0)
+    return;
+
+  /*
+   * đúng màu
+   */
+
+  if(
+    c.color===selectedColor+1
+  ){
+
+    if(!c.painted){
+
+      c.painted=true;
+      painted++;
+
+      navigator.vibrate?.(10);
+
+      saveProgress();
+      updateProgress();
+      draw();
+
+      /*
+       * level hoàn thành
+       */
+
+      if(painted>=total){
+
+        completeLevel();
+
+      }
+
+    }
+
+  }else{
+
+    /*
+     * sai màu
+     */
+
+    canvas.animate(
+      [
+        {transform:"translateX(0)"},
+        {transform:"translateX(-4px)"},
+        {transform:"translateX(4px)"},
+        {transform:"translateX(0)"}
+      ],
+      {
+        duration:120
+      }
+    );
+
+  }
+
+}
+
+let drawing=false;
+
+canvas.addEventListener(
+  "pointerdown",
+  e=>{
+
+    drawing=true;
+
+    canvas.setPointerCapture(
+      e.pointerId
+    );
+
+    paintAt(
+      e.clientX,
+      e.clientY
+    );
+
+  }
+);
+
+canvas.addEventListener(
+  "pointermove",
+  e=>{
+
+    if(!drawing)return;
+
+    paintAt(
+      e.clientX,
+      e.clientY
+    );
+
+  }
+);
+
+canvas.addEventListener(
+  "pointerup",
+  ()=>{
+    drawing=false;
+  }
+);
+
+canvas.addEventListener(
+  "pointercancel",
+  ()=>{
+    drawing=false;
+  }
+);
+
+/* =========================
+   PALETTE
+========================= */
+
+function drawPalette(){
+
+  paletteEl.innerHTML="";
+
+  const used=
+    new Set();
+
+  for(const row of grid)
+    for(const c of row)
+      if(c.color>0)
+        used.add(c.color);
+
+  [...used]
+    .sort((a,b)=>a-b)
+    .forEach(color=>{
+
+      const b=
+        document.createElement("button");
+
+      b.className="color";
+
+      b.style.background=
+        COLORS[
+          Math.min(
+            COLORS.length-1,
+            color
+          )
+        ];
+
+      if(
+        selectedColor+1===color
+      )
+        b.classList.add("selected");
+
+      let remaining=false;
+
+      for(const row of grid){
+
+        for(const c of row){
+
+          if(
+            c.color===color &&
+            !c.painted
+          ){
+
+            remaining=true;
+            break;
+
+          }
+
+        }
+
+        if(remaining)break;
+
+      }
+
+      if(!remaining)
+        b.classList.add("done");
+
+      const span=
+        document.createElement("span");
+
+      span.textContent=color;
+
+      b.appendChild(span);
+
+      b.onclick=()=>{
+
+        selectedColor=
+          color-1;
+
+        drawPalette();
+
+      };
+
+      paletteEl.appendChild(b);
+
+    });
+
+}
+
+/* =========================
+   COMPLETE
+========================= */
+
+function completeLevel(){
+
+  if(
+    !completed.includes(
+      currentLevel
+    )
+  ){
+
+    completed.push(
+      currentLevel
+    );
+
+    coins+=20;
+
+    if(
+      currentLevel>=
+      Number(
+        localStorage.getItem(
+          "pixelLevel"
+        )||0
+      )
+    ){
+
+      localStorage.setItem(
+        "pixelLevel",
+        currentLevel+1
+      );
+
+    }
+
+    save();
+
+  }
+
+  document
+    .getElementById("win")
+    .style.display="flex";
+
+}
+
+/* =========================
+   NEXT
+========================= */
+
+function nextLevel(){
+
+  document
+    .getElementById("win")
+    .style.display="none";
+
+  if(
+    currentLevel<
+    LEVELS-1
+  ){
+
+    currentLevel++;
+
+    localStorage.setItem(
+      "pixelLevel",
+      currentLevel
+    );
+
+    save();
+
+    startGame();
+
+  }else{
+
+    showLevels();
+
+  }
+
+}
+
+/* =========================
+   RESET
+========================= */
+
+function resetLevel(){
+
+  localStorage.removeItem(
+    "levelPaint_"+currentLevel
+  );
+
+  createLevel();
+
+}
+
+/* =========================
+   HINT
+========================= */
+
+function hint(){
+
+  if(coins<5){
+
+    alert("Không đủ xu!");
+
+    return;
+
+  }
+
+  let found=null;
+
+  for(let y=0;y<size;y++){
+
+    for(let x=0;x<size;x++){
+
+      const c=
+        grid[y][x];
+
+      if(
+        c.color>0 &&
+        !c.painted
+      ){
+
+        found={
+          x,
+          y,
+          color:c.color
+        };
+
+        break;
+
+      }
+
+    }
+
+    if(found)break;
+
+  }
+
+  if(!found)return;
+
+  coins-=5;
+  save();
+
+  /*
+   * Chọn màu cần tô
+   */
+
+  selectedColor=
+    found.color-1;
+
+  drawPalette();
+
+  /*
+   * Nhấp nháy ô cần tô
+   */
+
+  const old=
+    canvas.style.boxShadow;
